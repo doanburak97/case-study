@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('developer')->unique();
             $table->integer('sure');
-            $table->string('zorluk');
+            $table->integer('zorluk');
+            $table->integer('haftalik_is_yuku');
             $table->timestamps();
         });
     }

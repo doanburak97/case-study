@@ -1,24 +1,31 @@
-<h1>Todo List</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haftalık Görevler</title>
+</head>
+<body>
+<h1>Haftalık Görevler</h1>
 
-<table class="table" border="1">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Task Name</th>
-        <th>Duration</th>
-        <th>Difficulty</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach ($todoLists as $todoList)
+@foreach ($haftalar as $hafta => $veriler)
+    <h2>Hafta {{ $hafta }}</h2>
+    <table border="1">
+        <thead>
         <tr>
-            <td>{{ $todoList->id }}</td>
-            <td>{{ $todoList->task_ismi }}</td>
-            <td>{{ $todoList->sure }}</td>
-            <td>{{ $todoList->zorluk_derecesi }}</td>
+            <th>Task</th>
+            <th>Developer</th>
         </tr>
-    @endforeach
-    </tbody>
-</table>
-
-{{ $todoLists->links() }}
+        </thead>
+        <tbody>
+        @foreach ($veriler as $data)
+            <tr>
+                <td>{{ $data->task_id }}</td>
+                <td>{{ $data->developer_id }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+@endforeach
+</body>
+</html>

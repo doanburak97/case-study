@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Helpers\DataAdapter;
+use App\Http\Controllers\Api\V1\TodoListController;
+use App\Models\AssignedTasks;
+use App\Models\Developers;
 use App\Models\TodoList;
 use App\Repositories\Provider1ToDoListRepository;
 use App\Repositories\Provider2ToDoListRepository;
@@ -61,6 +64,62 @@ class FetchTodoLists extends Command
             }
         }
 
+        $this->assignTasks();
+
         $this->info('Data imported successfully.');
+    }
+
+    /**
+     * @return void
+     */
+    public function assignTasks(): void
+    {
+        $tasks = TodoList::orderByDesc('zorluk_derecesi')
+            ->orderByDesc('sure')
+            ->get();
+
+        $developers = Developers::orderByDesc('zorluk')
+            ->orderByDesc('sure')
+            ->get();
+
+        foreach ($developers as $developer) {
+            $developer->haftalik_calisma_saatleri = 0; // Her geliştiricinin haftalık çalışma saatlerini sıfırlayın
+            $developer->hafta = 1; // Her geliştiricinin kaçıncı haftada olduğunu takip edin
+        }
+
+        $hafta = 1;
+
+        while (!$tasks->isEmpty()) {
+            foreach ($developers as $developer) {
+                if ($tasks->isEmpty()) {
+                    break;
+                }
+
+                $haftalikCalismaSaatleri = $developer->haftalik_calisma_saatleri;
+                $hourlyWorkload = $developer->zorluk * $developer->sure;
+
+                $task = $tasks->shift();
+
+                $estimated_hours = ($task?->zorluk_derecesi * $task?->sure) / $hourlyWorkload;
+
+                if (($haftalikCalismaSaatleri + $estimated_hours) <= 45) {
+
+                    $assignTask = new AssignedTasks();
+                    $developer->haftalik_calisma_saatleri += $estimated_hours;
+                    $assignTask->developer_id = $developer->id;
+                    $assignTask->task_id = $task->id;
+                    $assignTask->hafta = $developer->hafta;
+                    $assignTask->save();
+                } else {
+                    $developer->hafta++;
+                    $developer->haftalik_calisma_saatleri = 0;
+                    $tasks->push($task);
+                }
+            }
+
+            if ($hafta == 1 && $tasks->isEmpty()) {
+                break;
+            }
+        }
     }
 }
