@@ -83,8 +83,8 @@ class FetchTodoLists extends Command
             ->get();
 
         foreach ($developers as $developer) {
-            $developer->haftalik_calisma_saatleri = 0; // Her geliştiricinin haftalık çalışma saatlerini sıfırlayın
-            $developer->hafta = 1; // Her geliştiricinin kaçıncı haftada olduğunu takip edin
+            $developer->haftalik_calisma_saatleri = 0;
+            $developer->hafta = 1;
         }
 
         $hafta = 1;
